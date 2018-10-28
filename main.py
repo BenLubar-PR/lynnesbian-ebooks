@@ -11,12 +11,12 @@ import shutil, os, sqlite3, signal, sys
 # import re
 
 api_base_url = "https://botsin.space"
-scopes = ["read:statuses", "read:accounts", "read:follows", "write:statuses"]
+scopes = ["read:statuses", "read:accounts", "read:follows", "write:statuses", "write:media"]
 
 if not path.exists("clientcred.secret"):
 
 	print("No clientcred.secret, registering application")
-	Mastodon.create_app("lynnesbian_mastodon_ebooks", api_base_url=api_base_url, to_file="clientcred.secret", scopes=scopes)
+	Mastodon.create_app("lynnesbian_mastodon_ebooks", api_base_url=api_base_url, to_file="clientcred.secret", scopes=scopes, website="https://github.com/Lynnesbian/mastodon-ebooks")
 
 if not path.exists("usercred.secret"):
 	print("No usercred.secret, registering application")
@@ -34,10 +34,10 @@ def parse_toot(toot):
 	
 	# pull the mentions out
 	# for mention in soup.select("span.h-card"):
-	#     mention.unwrap()
+	#	  mention.unwrap()
 
 	# for mention in soup.select("a.u-url.mention"):
-	#     mention.unwrap()
+	#	  mention.unwrap()
 
 	# this is the code that removes all mentions
 	# TODO: make it so that it removes the @ and instance but keeps the name
@@ -124,7 +124,7 @@ for f in following:
 		# try:
 		c.execute("REPLACE INTO toots (id, userid, content) VALUES (?, ?, ?)", (t['id'], f.id, t['content']))
 		# except:
-		# 	pass #ignore toots that can't be encoded properly
+		#	pass #ignore toots that can't be encoded properly
 
 db.commit()
 db.execute("VACUUM") #compact db

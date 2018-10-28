@@ -31,11 +31,10 @@ def extract_toot(toot):
 	text = map(lambda a: a.strip(), soup.get_text().strip().split("\n"))
 	text = "\n".join(list(text))
 	text = re.sub("https?://([^/]+)/(@[^ ]+)", r"\2@\1", text) #put mentions back in
-	text = re.sub("^@[^@]+@[^ ]+ *", r"", text) #...but remove the initial one
+	text = re.sub("^(@[^@]+@[^ ]+ *)+", r"", text) #...but remove the initial ones
 	text = text.lower() #for easier matching
 	return text
 
-known_toots = open('known_toots.txt', 'w+')
 class ReplyListener(mastodon.StreamListener):
 	def on_notification(self, notification):
 		if notification['type'] == 'mention':
@@ -43,8 +42,9 @@ class ReplyListener(mastodon.StreamListener):
 			post_id = notification['status']['id']
 			mention = extract_toot(notification['status']['content'])
 			toot = create.make_toot(True)['toot']
-			compat = re.match("^compatibility check: (@[^@]+@[^ ]+) (?:and|&) (@[^@]+@[^ ]+)", mention)
-			print(mention)
+			# compat = re.match("^compatibility check: (@[^@]+@[^ ]+) (?:and|&) (@[^@]+@[^ ]+)", mention)
+			talk_about = re.match("^ *(?:talk|tell me|post|toot) about (.*)\\.*", mention)
+			print(acct + " says " + mention)
 			#special functions
 			if mention.startswith("yes or no:"):
 				replies = ["yes", "nope", "no", "definitely!", "of course!", "no way.",
@@ -98,9 +98,12 @@ class ReplyListener(mastodon.StreamListener):
 				"make the best of a bad situation.", "this is going to be a great day!",
 				"when god closes a door, she opens a window~", "i mean i've seen worse?"]
 				toot = random.choice(fortunes)
-			elif compat != None:
+			# elif compat != None:
 				# toot = "{} and {} are {}% compatible.".format(compat.group(1), compat.group(2), random.randint(0,100))
-				toot = "Feature disabled"
+				# toot = "Feature disabled"
+			elif talk_about != None:
+				#toot = create.make_toot_markov(talk_about.group(1))['toot']
+				pass #broken, disabled
 			toot = acct + " " + toot
 			if acct == "@lynnesbian@deadinsi.de":
 				prefixes = ["h-hello, mistress...", "hi lynne!",
