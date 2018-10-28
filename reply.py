@@ -10,9 +10,9 @@ from bs4 import BeautifulSoup
 
 cfg = json.load(open('config.json', 'r'))
 client = mastodon.Mastodon(
-        client_id="clientcred.secret", 
-        access_token="usercred.secret", 
-        api_base_url=cfg['site'])
+		client_id="clientcred.secret", 
+		access_token="usercred.secret", 
+		api_base_url=cfg['site'])
 
 def extract_toot(toot):
 	#copied from main.py, see there for comments
@@ -113,7 +113,7 @@ class ReplyListener(mastodon.StreamListener):
 					toot = random.choice(prefixes) + " " + toot
 			if acct == "@lynnesbian@deadinsi.de":
 				if random.randint(1,1000) == 666:
-					toot = "@lynnesbian@deadinsi.de" +  ("i love you " * random.randint(10, 20))
+					toot = "@lynnesbian@deadinsi.de" +	("i love you " * random.randint(10, 20))
 			client.status_post(toot, post_id, visibility=notification['status']['visibility'])
 
 rl = ReplyListener()
