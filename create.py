@@ -5,30 +5,58 @@
 
 import markovify
 import json
-import time
-import re, random, subprocess, argparse
+import re, random, subprocess, argparse, multiprocessing, time, sqlite3
 
 def render_meme(filename, text, position, size, colour = "black"):
 	subprocess.run(args = ["convert", filename, "-pointsize",
 		size, "-gravity", "center", "-fill", colour, "-draw",
 		"text {} '{}'".format(position, text), "meme.jpg"])
 
-
-def make_toot(force_markov = False, args = None):
+def make_sentence(output):
 	class nlt_fixed(markovify.NewlineText):
 		def test_sentence_input(self, sentence):
 			return True #all sentences are valid <3
 
-	with open("corpus.txt", encoding="utf-8") as fp:
-	  model = nlt_fixed(fp.read())
+	# with open("corpus.txt", encoding="utf-8") as fp:
+	#   model = nlt_fixed(fp.read())
+
+	db = sqlite3.connect("toots.db")
+	db.text_factory=str
+	c = db.cursor()
+	toots = c.execute("SELECT content FROM `toots`").fetchall()
+	toots_str = ""
+	for toot in toots:
+		toots_str += "\n{}".format(toot[0])
+	model = nlt_fixed(toots_str)
+	toots_str = None
+	db.close()
+
+	sentence = None
+	while sentence is None:
+		sentence = model.make_short_sentence(500, tries=100000)
+	sentence = sentence.replace("\0", "\n")
+	output.send(sentence)
+
+def make_toot(force_markov = False, args = None):
+			
 
 	# print("tooting")
-	sentence = None
-	while sentence is None or len(sentence) > 500:
-		sentence = model.make_sentence(tries=1000)
-	toot = sentence.replace("\0", "\n")
 	media = None
 	media_description = None
+	tries = 0
+	toot = None
+	while toot == None and tries < 10:
+		pin, pout = multiprocessing.Pipe(False)
+		p = multiprocessing.Process(target = make_sentence, args = [pout])
+		p.start()
+		p.join(10)
+		if p.is_alive():
+			p.terminate()
+			p.join()
+			toot = None
+			tries = tries + 1
+		else:
+			toot = pin.recv()
 
 	if not force_markov and random.randint(1, 2) == 2:
 		# print("nonstandard")
@@ -44,7 +72,7 @@ def make_toot(force_markov = False, args = None):
 			"i loathe you", "this fediverse isn't big enough for the two of us",
 			"get nae nae'd", "you're the worst", "begone thot", "you're a stink"]
 			compliments = ["you are my mistress and i live to serve you", "i love you",
-			"marry me", "your hair looks amazing today", "you're beutiful", 
+			"marry me", "your hair looks amazing today", "you're beautiful", 
 			"you did such a good job today", "you're so hot", "you look so fine",
 			"i'm so glad that you brought me into this world", "you are divine",
 			"your skin looks great", "you are #goals", "you're a beautiful bune",
@@ -132,11 +160,13 @@ def make_toot(force_markov = False, args = None):
 			"anti-feminism", "aphobia", "enbyphobia", "gender binary",
 			"what\\'s up gamers", "diarrhoea", "irritable bowel syndrome", "scurvy",
 			"traditionalism", "clowns", "having a gluten allergy", "deez nuts",
-			"cisgender people", "the cisheteropatriarchy", "shitty memes",
+			"cisgender people", "the allocisheteropatriarchy", "shitty memes",
 			"\"ironic\" racism", "don\\'t ask, don\\'t tell", "quote tooting",
+			"unnecessarily gendered products", "jumpscares", "mansplaining",
 			"using gay as\nan insult", "calling toots \"tweets\"",
 			"wolf cock on\nthe timeline\nwithout a CW", "the Fox Pussy Incident",
 			"overly long text\nthat has a chance\nof not being correctly\nformatted",
+			"men with anime\ngirl avatars", "logic guys",
 			"monopoly (the economic thing)", "monopoly (board game)",
 			"being sucked into\na black hole", "unfunny jokes",
 			"AAAAAAAAAAAAAAAAAA\nAAAAAAAAAAAAA", "that guy everyone hates",
@@ -147,7 +177,7 @@ def make_toot(force_markov = False, args = None):
 			"eating poop", "agony", "deleting good toots", "fascism", "imperialism",
 			"extorting the poor", "the blockchain", "death", "The Straights",
 			"Linus Torvalds being\nan asshole for\nno reason", "chan culture",
-			"not tipping well\n(if you can\nafford it)", "poop",
+			"not tipping well\n(if you can\nafford it)", "poop", "cum ritz",
 			"removing artist\\'s URLs\nfrom memes"]
 
 			good = ["generating memes with\nimagemagick and python", "being gay", 
@@ -311,7 +341,7 @@ def make_toot(force_markov = False, args = None):
 	". if you disagree with that, unfollow immediately.", ". not up for debate.",
 	". i read that on the internet.", "\ndid i make a good post, mistress Lynne?",
 	", and furthermore, im gay xd", "...", ". not reading replies to this.",
-	" mute thread", "!", ". i love you all"]
+	" mute thread", "!", ". i love you all", ". cheers from mine."]
 	if random.randint(1, 5) == 7:
 		#add a prefix
 		if len(toot) < 500:

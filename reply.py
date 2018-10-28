@@ -60,10 +60,9 @@ class ReplyListener(mastodon.StreamListener):
 					command = mention[len("override: "):]
 					swaps = {
 						"you": "i",
-						"i are": "you are",
+						"yours": "mine",
 						"your": "my",
 						"you're": "i'm",
-						"yours": "mine",
 					}
 					gross_hack = "///DON'T_USE_THIS_PHRASE_IN_A_TOOT///"
 					command = re.sub("\\bme\\b", "i", command)
@@ -89,6 +88,16 @@ class ReplyListener(mastodon.StreamListener):
 					"no, no, no! how could i have let this happen in front of mistress?!",
 					"m-maybe you'll have to punish me..."]
 				toot = random.choice(apologies)
+			elif re.match(r"^\s*fortune\s*$", mention) != None:
+				fortunes = ["not looking good.", "things are gonna go well!",
+				"you're gonna have a great day!", "terrible day ahead. do NOT go outside.",
+				"it's a good day to be gay!", "um... good luck! 0u0;",
+				"honestly you're kinda fucked for today", "don't accept the offer.",
+				"that thing you've always wanted to do? go for it.",
+				"i don't know, i'm just a bot :L", "hmm... what? i was thinking about girls...",
+				"make the best of a bad situation.", "this is going to be a great day!",
+				"when god closes a door, she opens a window~", "i mean i've seen worse?"]
+				toot = random.choice(fortunes)
 			elif compat != None:
 				# toot = "{} and {} are {}% compatible.".format(compat.group(1), compat.group(2), random.randint(0,100))
 				toot = "Feature disabled"
@@ -96,12 +105,12 @@ class ReplyListener(mastodon.StreamListener):
 			if acct == "@lynnesbian@deadinsi.de":
 				prefixes = ["h-hello, mistress...", "hi lynne!",
 				"(omg, mistress is talking to me!)", "m-mistress!", "lynne!",
-				"hello, my favourite lesbian!", "hey lynne~"]
-				if random.randint(1,5) == 3:
+				"hello, my favourite lesbian!", "hey lynne~", "o-oh, hi lynne!"]
+				if random.randint(1,15) == 3:
 					toot = random.choice(prefixes) + " " + toot
 			if acct == "@lynnesbian@deadinsi.de":
 				if random.randint(1,1000) == 666:
-					toot = "@lynnesbian@deadinsi.de i love you " * random.randint(10, 20)
+					toot = "@lynnesbian@deadinsi.de" +  ("i love you " * random.randint(10, 20))
 			client.status_post(toot, post_id, visibility=notification['status']['visibility'])
 
 rl = ReplyListener()

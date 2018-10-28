@@ -7,6 +7,7 @@ from mastodon import Mastodon
 from getpass import getpass
 from os import path
 from bs4 import BeautifulSoup
+import shutil, os, sqlite3, signal, sys
 # import re
 
 api_base_url = "https://botsin.space"
@@ -69,14 +70,17 @@ def parse_toot(toot):
 	# it's 4am though so we're not doing that now, but i still want the parser updates
 	return "\0".join(list(text))
 
-def get_toots(client, id):
+def get_toots(client, id, since_id):
 	i = 0
-	toots = client.account_statuses(id)
+	toots = client.account_statuses(id, since_id = since_id)
 	while toots is not None and len(toots) > 0:
 		for toot in toots:
 			t = parse_toot(toot)
 			if t != None:
-				yield t
+				yield {
+					"content": t,
+					"id": toot.id
+				}
 		toots = client.fetch_next(toots)
 		i += 1
 		if i%10 == 0:
@@ -90,11 +94,33 @@ client = Mastodon(
 me = client.account_verify_credentials()
 following = client.account_following(me.id)
 
-with open("corpus.txt", "w+", encoding="utf-8") as fp:
-	for f in following:
-		print("Downloading toots for user @{}".format(f.username))
-		for t in get_toots(client, f.id):
-			try:
-				fp.write(t + "\n")
-			except:
-				pass #ignore toots that can't be encoded properly
+db = sqlite3.connect("toots.db")
+db.text_factory=str
+c = db.cursor()
+c.execute("CREATE TABLE IF NOT EXISTS `toots` (id INT NOT NULL UNIQUE PRIMARY KEY, userid INT NOT NULL, content VARCHAR NOT NULL) WITHOUT ROWID")
+db.commit()
+
+def handleCtrlC(signal, frame):
+	print("\nPREMATURE EVACUATION - Saving chunks")
+	db.commit()
+	sys.exit(1)
+
+signal.signal(signal.SIGINT, handleCtrlC)
+
+for f in following:
+	last_toot = c.execute("SELECT id FROM `toots` WHERE userid LIKE ? ORDER BY id DESC LIMIT 1", (f.id,)).fetchone()
+	if last_toot != None:
+		last_toot = last_toot[0]
+	else:
+		last_toot = 0
+	print("Downloading toots for user @{}, starting from {}".format(f.username, last_toot))
+	for t in get_toots(client, f.id, last_toot):
+		# try:
+		c.execute("REPLACE INTO toots (id, userid, content) VALUES (?, ?, ?)", (t['id'], f.id, t['content']))
+		# except:
+		# 	pass #ignore toots that can't be encoded properly
+
+db.commit()
+db.execute("VACUUM") #compact db
+db.commit()
+db.close()
