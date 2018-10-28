@@ -21,7 +21,6 @@ if not path.exists("usercred.secret"):
 	print(client.auth_request_url(scopes=scopes))
 	client.log_in(code=input("Secret: "), to_file="usercred.secret", scopes=scopes)
 
-
 def parse_toot(toot):
 	if toot.spoiler_text != "": return
 	if toot.reblog is not None: return
