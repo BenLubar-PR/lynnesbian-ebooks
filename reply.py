@@ -8,11 +8,11 @@ import os, random, re
 import create
 from bs4 import BeautifulSoup
 
-api_base_url = "https://botsin.space"
+cfg = json.load(open('config.json', 'r'))
 client = mastodon.Mastodon(
         client_id="clientcred.secret", 
         access_token="usercred.secret", 
-        api_base_url=api_base_url)
+        api_base_url=cfg['site'])
 
 def extract_toot(toot):
 	#copied from main.py, see there for comments

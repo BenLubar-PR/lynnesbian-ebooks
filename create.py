@@ -7,15 +7,18 @@ import markovify
 import json
 import re, random, subprocess, argparse, multiprocessing, time, sqlite3, shutil, os
 
-def render_meme(filename, text, position, size, colour = "black"):
+class NullSplitText(markovify.Text):
+		def test_sentence_input(self, sentence):
+			return True #all sentences are valid <3
+		def sentence_split(self, text):
+			return re.split("\0", text)
+
+def render_meme(filename, text, position, size, colour = "black"): #todo: actually use this
 	subprocess.run(args = ["convert", filename, "-pointsize",
 		size, "-gravity", "center", "-fill", colour, "-draw",
 		"text {} '{}'".format(position, text), "meme.jpg"])
 
 def make_sentence(output, query = None):
-	class nlt_fixed(markovify.NewlineText):
-		def test_sentence_input(self, sentence):
-			return True #all sentences are valid <3
 
 	# with open("corpus.txt", encoding="utf-8") as fp:
 	#   model = nlt_fixed(fp.read())
@@ -34,8 +37,8 @@ def make_sentence(output, query = None):
 		output.send("Database query returned no matches!")
 		return
 	for toot in toots:
-		toots_str += "\n{}".format(toot[0])
-	model = nlt_fixed(toots_str)
+		toots_str += "\0{}".format(toot[0])
+	model = NullSplitText(toots_str)
 	toots_str = None
 	db.close()
 	os.remove("toots-copy.db")
@@ -43,7 +46,6 @@ def make_sentence(output, query = None):
 	sentence = None
 	while sentence is None:
 		sentence = model.make_short_sentence(500, tries=10000)
-	sentence = sentence.replace("\0", "\n")
 	output.send(sentence)
 
 def make_toot(force_markov = False, args = None, query = None):

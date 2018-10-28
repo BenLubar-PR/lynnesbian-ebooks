@@ -15,12 +15,12 @@ parser.add_argument('-s', '--simulate', dest='simulate', action='store_true',
 
 args = parser.parse_args()
 
-api_base_url = "https://botsin.space" #todo: this shouldn't be hardcoded
+cfg = json.load(open('config.json', 'r'))
 
 client = Mastodon(
         client_id="clientcred.secret", 
         access_token="usercred.secret", 
-        api_base_url=api_base_url)
+        api_base_url=cfg['site'])
 
 toot = create.make_toot()
 if not args.simulate:
