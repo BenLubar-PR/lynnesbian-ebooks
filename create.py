@@ -40,11 +40,15 @@ def make_sentence(output):
 	output.send(sentence)
 
 def make_toot(force_markov = False, args = None):
-			
+	if force_markov:
+		return make_toot_markov()
+	else:
+		if random.randint(1,2)==2:
+			return make_toot_nonstandard()
+		else:
+			return make_toot_markov()
 
-	# print("tooting")
-	media = None
-	media_description = None
+def make_toot_markov():
 	tries = 0
 	toot = None
 	while toot == None and tries < 10:
@@ -59,6 +63,16 @@ def make_toot(force_markov = False, args = None):
 			tries = tries + 1
 		else:
 			toot = pin.recv()
+	return {
+			"toot":toot,
+			"media":None
+		}
+
+def make_toot_nonstandard():
+	# print("tooting")
+	media = None
+	media_description = None
+	toot = "An error occurred! @lynnesbian@deadinsi.de mistress, I think you forgot to handle all possible values for choice!"
 
 	if not force_markov and random.randint(1, 2) == 2:
 		# print("nonstandard")

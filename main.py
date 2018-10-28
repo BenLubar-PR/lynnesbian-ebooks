@@ -81,7 +81,13 @@ def get_toots(client, id, since_id):
 					"content": t,
 					"id": toot.id
 				}
-		toots = client.fetch_next(toots)
+		try:
+			toots = client.fetch_next(toots)
+		except TimeoutError:
+			print("Operation timed out, committing to database and exiting.")
+			db.commit()
+			db.close()
+			sys.exit(1)
 		i += 1
 		if i%10 == 0:
 			print(i)
