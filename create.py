@@ -5,7 +5,7 @@
 
 import markovify
 import json
-import re, random, subprocess, argparse, multiprocessing, time, sqlite3
+import re, random, subprocess, argparse, multiprocessing, time, sqlite3, shutil, os
 
 def render_meme(filename, text, position, size, colour = "black"):
 	subprocess.run(args = ["convert", filename, "-pointsize",
@@ -20,7 +20,8 @@ def make_sentence(output):
 	# with open("corpus.txt", encoding="utf-8") as fp:
 	#   model = nlt_fixed(fp.read())
 
-	db = sqlite3.connect("toots.db")
+	shutil.copyfile("toots.db", "toots-copy.db")
+	db = sqlite3.connect("toots-copy.db")
 	db.text_factory=str
 	c = db.cursor()
 	toots = c.execute("SELECT content FROM `toots`").fetchall()
@@ -30,6 +31,7 @@ def make_sentence(output):
 	model = nlt_fixed(toots_str)
 	toots_str = None
 	db.close()
+	os.remove("toots-copy.db")
 
 	sentence = None
 	while sentence is None:
