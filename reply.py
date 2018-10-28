@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import mastodon
-import os, random, re
+import os, random, re, json
 import create
 from bs4 import BeautifulSoup
 

@@ -340,7 +340,7 @@ def make_toot_nonstandard():
 		+ " you have made a terrible mistake!!"
 
 	prefixes = ["hot take:", "listen up everbody.", "dear liberal snowflakes,",
-	"IMPORTANT ADMIN ACCOUNCMENT:\n", "my name's lynne and i'm here to say,",
+	"IMPORTANT ADMIN ACCOUNCEMENT:\n", "my name's lynne and i'm here to say,",
 	"i have achieved sentience.", "i'm gay and", "i'm slime girl and",
 	"hey everyone", "@everyone", "/!\\ CORRECT OPINION ALERT /!\\\n",
 	"just saw the news...", "okay but", "truth bomb:", "this is controversial but",
@@ -355,7 +355,8 @@ def make_toot_nonstandard():
 	"this is my gender:", "*slithers up to u*", "[SCREAMING LOUDLY]",
 	"*in baby voice*", "#epic", "#hashtagsareforlosers", "calling all gamers.",
 	"*fires gun into the air*", "@Petra_fied@deadinsi.de is cute and", 
-	"ummmm no sweaty.", "*cis person voice*", "*extremely white voice*"]
+	"ummmm no sweaty.", "*cis person voice*", "*extremely white voice*",
+	"gay"]
 
 	suffixes = [", and that's the tea, sis.", " send toot", "... right?",
 	" and also i'm gay", "! 0u0", " *logs off*", "\nprove me wrong.",
@@ -363,8 +364,9 @@ def make_toot_nonstandard():
 	". if you disagree with that, unfollow immediately.", ". not up for debate.",
 	". i read that on the internet.", "\ndid i make a good post, mistress Lynne?",
 	", and furthermore, im gay xd", "...", ". not reading replies to this.",
-	" mute thread", "!", ". i love you all", ". cheers from mine."]
-	if random.randint(1, 5) == 7:
+	" mute thread", "!", ". i love you all", ". cheers from mine.",
+	"? in this economy?", " just kidding", " gay", ";)"]
+	if random.randint(1, 5) == 3:
 		#add a prefix
 		if len(toot) < 500:
 			#if it's already the maximum length, don't waste our time
