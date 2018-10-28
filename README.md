@@ -1,7 +1,6 @@
-# mastodon-ebooks
-**Lynnear Edition**
+# lynnesbian-ebooks
 
-This version makes quite a few changes from the original, such as:
+This version makes quite a few changes from [the original](https://github.com/Jess3Jane/mastodon-ebooks), such as:
 - Unicode support
 - Non-Markov stuff
 - Meme generation with ImageMagick
