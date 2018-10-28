@@ -13,6 +13,18 @@ import requests
 scopes = ["read:statuses", "read:accounts", "read:follows", "write:statuses"]
 cfg = json.load(open('config.json', 'r'))
 
+if os.path.exists("clientcred.secret"):
+	print("Upgrading to new storage method")
+	cc = open("clientcred.secret").read().split("\n")
+	cfg['client'] = {
+		"id": cc[0],
+		"secret": cc[1]
+	}
+	cfg['secret'] = open("usercred.secret").read().rstrip("\n")
+	os.remove("clientcred.secret")
+	os.remove("usercred.secret")
+	
+
 if "client" not in cfg:
 	print("No client credentials, registering application")
 	client_id, client_secret = Mastodon.create_app("mstdn-ebooks",
