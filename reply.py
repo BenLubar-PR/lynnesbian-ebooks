@@ -121,6 +121,7 @@ class ReplyListener(mastodon.StreamListener):
 			if visibility == 'public':
 			    visibility = "unlisted"
 			client.status_post(toot, post_id, visibility=visibility)
+			print("replied with " + toot)
 
 rl = ReplyListener()
 client.stream_user(rl)
